@@ -1,6 +1,6 @@
 import sys
 import pickle
-from dataBase import DataBase  # Import the DataBase class from a module called 'DataBase'.
+from dataBase import DataBase
 
 # Define a class called Bank to manage banking operations.
 class Bank:
@@ -80,11 +80,26 @@ class Bank:
 
         # Print the sorted list of transactions.
         for transaction in transaction_list:
+            # print(transaction[0]) round correctly!
             print(f"{transaction[1]}, ${transaction[0]:.2f}")
 
     # Method to calculate interest and fees for the selected account.
     def _calculate_interest_and_fees(self):
         selected = self._db.get_selected_account()
+        lastdays = {
+            "01": "31",
+            "02": "28",
+            "03": "31",
+            "04": "30",
+            "05": "31",
+            "06": "30",
+            "07": "31",
+            "08": "31",
+            "09": "30",
+            "10": "31",
+            "11": "30",
+            "12": "31"
+        }
 
         if selected is None:
             print("Extra check: No account selected.")
@@ -103,10 +118,12 @@ class Bank:
         upd_balance = selected.get_balance() * (interest / 100)
         new_balance = selected.get_balance() * (1 + interest / 100)
 
-        transaction_list.append((upd_balance, "-".join(transaction_list[-1][1].split("-")[:2] + ["30"])))
+        lastday = lastdays.get(transaction_list[-1][1].split("-")[1])
+
+        transaction_list.append((upd_balance, "-".join(transaction_list[-1][1].split("-")[:2] + [lastday])))
         if (new_balance < 100):
             upd_balance += fee
-        transaction_list.append((fee, "-".join(transaction_list[-1][1].split("-")[:2] + ["30"])))
+        transaction_list.append((fee, "-".join(transaction_list[-1][1].split("-")[:2] + [lastday])))
         selected.set_balance(upd_balance)
 
     # Method to save the current database to a file.
